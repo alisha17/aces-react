@@ -1,49 +1,48 @@
-import React from 'react';
-import axios from 'axios';
-import { BrowserRouter } from 'react-router-dom';
-import Button from '@material-ui/core/Button';
-import { FormLabel, TextField, FormControl, Grid } from '@material-ui/core';
+import React from "react";
+import Button from "@material-ui/core/Button";
+import { FormLabel, TextField, FormControl, Grid } from "@material-ui/core";
 
 class Login extends React.Component {
-
-  constructor(props){
-    super(props)
+  constructor(props) {
+    super(props);
     this.state = {
-      username: '',
-      password: '',
+      username: "",
+      password: "",
       userLoggedIn: false,
-      messages: ['fbfbbfbf', 'dhbdhdhdhd'],
-      newMessage: ''
-    }
+      messages: ["fbfbbfbf", "dhbdhdhdhd"],
+      newMessage: ""
+    };
   }
 
   handleNameChange = event => {
     this.setState({ username: event.target.value });
-  }
+  };
 
   handlePasswordChange = event => {
     this.setState({ password: event.target.value });
-  }
+  };
 
   handleChange = event => {
     this.setState({ newMessage: event.target.value });
-  }
+  };
 
   addNewMessage = message => {
-    console.log("hehbfbfbfb")
+    console.log("hehbfbfbfb");
     this.setState({
       messages: [...this.state.messages, message]
-    })
-    this.setState({newMessage: ''})
+    });
+    this.setState({ newMessage: "" });
     console.log(this.state.messages);
-  }
+  };
 
   logout = () => {
-    fetch('http://localhost:5000/logout/'+sessionStorage.getItem('username'))
-      .then(res => {
-        window.location.assign('/');
-      })
-  }
+    fetch(
+      "http://localhost:5000/logout/" + sessionStorage.getItem("username")
+    ).then(res => {
+      this.setState({ userLoggedIn: false });
+      window.location.assign("/");
+    });
+  };
 
   handleSubmit = event => {
     event.preventDefault();
@@ -53,27 +52,26 @@ class Login extends React.Component {
       password: this.state.password
     };
 
-    const b = {
-      method: 'POST',
-      body: JSON.stringify(user),
-    }
+    const opts = {
+      method: "POST",
+      body: JSON.stringify(user)
+    };
 
-    fetch('http://18.219.29.236:5000/login', b)
+    fetch("http://localhost:5000/login", opts)
       .then(res => {
-        console.log(res);
-
-        this.setState({userLoggedIn: true});
-        return fetch('http://18.219.29.236:5000/messages/'+this.state.username, {credentials: 'include'});
+        this.setState({ userLoggedIn: true });
+        return fetch(
+          "http://localhost:5000/messages/" + this.state.username,
+          { credentials: 'include' }
+        );
       })
-      .then((response) => {
-        console.log('Response', response);
-      })
-  }
+      .then(response => {
+        console.log("Response", response);
+      });
+  };
 
   render() {
-    
-    if (!this.state.userLoggedIn)
-    {
+    if (!this.state.userLoggedIn) {
       return (
         <Grid
           container
@@ -81,74 +79,77 @@ class Login extends React.Component {
           alignItems="center"
           justify="center"
           style={{ minHeight: "100vh" }}
-          >
-        <div class="container">
-          <FormControl>
+        >
+          <div className="container">
+            <FormControl>
+              <FormLabel>
+                Username:
+                <TextField name="username" onChange={this.handleNameChange} />
+              </FormLabel>
+              <FormLabel>
+                Password:
+                <TextField
+                  type="password"
+                  name="password"
+                  onChange={this.handlePasswordChange}
+                />
+              </FormLabel>
+              <div>
+                <Button
+                  variant="contained"
+                  color="primary"
+                  onClick={this.handleSubmit}
+                >
+                  Login
+                </Button>
+              </div>
+            </FormControl>
+          </div>
+        </Grid>
+      );
+    } else {
+      return (
+        <Grid
+          container
+          spacing={0}
+          alignItems="center"
+          justify="center"
+          style={{ minHeight: "100vh" }}
+        >
+          <div>
+            <ul>
+              {this.state.messages.map((value, index) => {
+                return <li key={index}>{value}</li>;
+              })}
+            </ul>
             <FormLabel>
-              Username:
-              <TextField 
-                floatingLabelText="Fixed Floating Label Text"
-                name="username" 
-                onChange={this.handleNameChange} />
-            </FormLabel>
-            <FormLabel>
-              Password:
+              Enter your message:
               <TextField
-                name="password" 
-                onChange={this.handlePasswordChange} 
+                value={this.state.newMessage}
+                onChange={this.handleChange}
               />
             </FormLabel>
             <div>
-            <Button variant="contained" 
-              color="primary" 
-              onClick={this.handleSubmit}>
-              Login</Button>
-              </div>
-          </FormControl>
-        </div>
-        </Grid>
-      )
-    }
-    else {
-      return (
-        <Grid
-        container
-        spacing={0}
-        alignItems="center"
-        justify="center"
-        style={{ minHeight: "100vh" }}
-        >
-        <div>
-        <ul>
-        {this.state.messages.map((value, index) => {
-          return <li key={index}>{value}</li>
-        })}
-    </ul>
-    <FormLabel>
-      Enter your message:
-        <TextField
-            value={this.state.newMessage}
-            onChange={this.handleChange}
-         />
-             </FormLabel>
-          <div>
-          <Button 
-            variant="contained" 
-            color="primary" 
-            onClick={() => this.addNewMessage(this.state.newMessage)
-					}> Add
-					</Button>
-          &nbsp;
-          <Button 
-            variant="contained" 
-            color="primary" 
-            onClick={() => this.logout()}>
-						Logout
-					</Button>
-          </div>
+              <Button
+                variant="contained"
+                color="primary"
+                onClick={() => this.addNewMessage(this.state.newMessage)}
+              >
+                {" "}
+                Add
+              </Button>
+              &nbsp;
+              <Button
+                variant="contained"
+                color="primary"
+                onClick={() => this.logout()}
+              >
+                Logout
+              </Button>
             </div>
-            </Grid>
-      )
+          </div>
+        </Grid>
+      );
     }
   }
 }
