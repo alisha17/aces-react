@@ -123,7 +123,7 @@ class Login extends React.Component {
               })}
             </ul>
             <FormLabel>
-              Enter your message:
+              New message:
               <TextField
                 value={this.state.newMessage}
                 onChange={this.handleChange}
