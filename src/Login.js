@@ -41,7 +41,7 @@ class Login extends React.Component {
     };
 
     fetch(
-      'http://localhost:9050/messages/'+this.state.username, opts
+      'http://18.219.29.236:5000/messages/'+this.state.username, opts
     )
 
     this.setState({ newMessage: '' });
@@ -57,7 +57,7 @@ class Login extends React.Component {
       }}
 
     fetch(
-      'http://localhost:9050/logout/' + this.state.username, options
+      'http://18.219.29.236:5000/logout/' + this.state.username, options
     ).then(res => {
       sessionStorage.clear();
       this.setState({ userLoggedIn: false });
@@ -78,7 +78,7 @@ class Login extends React.Component {
       body: JSON.stringify(user)
     };
 
-    fetch('http://localhost:9050/login', opts)
+    fetch('http://18.219.29.236:5000/login', opts)
       .then(res => {  if (res.ok) {
         return res.json();
       } else {
@@ -101,7 +101,7 @@ class Login extends React.Component {
           }}
 
         return fetch(
-          'http://localhost:9050/messages/' + this.state.username,
+          'http://18.219.29.236:5000/messages/' + this.state.username,
           options
         );
       
