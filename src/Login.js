@@ -1,16 +1,16 @@
-import React from "react";
-import Button from "@material-ui/core/Button";
-import { FormLabel, TextField, FormControl, Grid } from "@material-ui/core";
+import React from 'react';
+import Button from '@material-ui/core/Button';
+import { FormLabel, TextField, FormControl, Grid } from '@material-ui/core';
 
 class Login extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      username: "",
-      password: "",
+      username: '',
+      password: '',
       userLoggedIn: false,
-      messages: ["fbfbbfbf", "dhbdhdhdhd"],
-      newMessage: ""
+      messages: [],
+      newMessage: ''
     };
   }
 
@@ -27,20 +27,41 @@ class Login extends React.Component {
   };
 
   addNewMessage = message => {
-    console.log("hehbfbfbfb");
+    console.log('hehbfbfbfb');
     this.setState({
       messages: [...this.state.messages, message]
     });
-    this.setState({ newMessage: "" });
+
+    const opts = {
+      method: 'POST',
+      body: JSON.stringify({'message': message}),
+      headers: {
+        'Authorization': sessionStorage.getItem('bearer_token'),
+      }
+    };
+
+    fetch(
+      'http://localhost:9050/messages/'+this.state.username, opts
+    )
+
+    this.setState({ newMessage: '' });
+
     console.log(this.state.messages);
   };
 
   logout = () => {
+    const options = {
+      method: 'GET',
+      headers: {
+        'Authorization': sessionStorage.getItem('bearer_token'),
+      }}
+
     fetch(
-      "http://localhost:5000/logout/" + sessionStorage.getItem("username")
+      'http://localhost:9050/logout/' + this.state.username, options
     ).then(res => {
+      sessionStorage.clear();
       this.setState({ userLoggedIn: false });
-      window.location.assign("/");
+      window.location.assign('/');
     });
   };
 
@@ -53,51 +74,76 @@ class Login extends React.Component {
     };
 
     const opts = {
-      method: "POST",
+      method: 'POST',
       body: JSON.stringify(user)
     };
 
-    fetch("http://localhost:5000/login", opts)
-      .then(res => {
-        this.setState({ userLoggedIn: true });
-        return fetch(
-          "http://localhost:5000/messages/" + this.state.username,
-          { credentials: 'include' }
-        );
-      })
+    fetch('http://localhost:9050/login', opts)
+      .then(res => {  if (res.ok) {
+        return res.json();
+      } else {
+        throw new Error('Something went wrong');
+      } })
       .then(response => {
-        console.log("Response", response);
+    
+        this.setState({ userLoggedIn: true });
+
+        const bearer = 'Bearer '+response['access_token'];
+        sessionStorage.setItem('bearer_token', bearer)
+
+        console.log(bearer);
+        const options = {
+          method: 'GET',
+          headers: {
+            'Authorization': sessionStorage.getItem('bearer_token'),
+            'Content-Type': 'application/json',
+            'Access-Control-Allow-Credentials': true
+          }}
+
+        return fetch(
+          'http://localhost:9050/messages/' + this.state.username,
+          options
+        );
+      
+      })
+      .then(rs => rs.json()).then(response => {
+        this.setState({messages: response['data']})
+      })
+      .catch((error) => {
+        console.log(error);
       });
   };
 
   render() {
+    const messages = this.state.messages ? this.state.messages : [];
+
     if (!this.state.userLoggedIn) {
       return (
         <Grid
           container
           spacing={0}
-          alignItems="center"
-          justify="center"
-          style={{ minHeight: "100vh" }}
+          alignItems='center'
+          justify='center'
+          style={{ minHeight: '100vh' }}
         >
-          <div className="container">
+          <div className='container'>
             <FormControl>
               <FormLabel>
                 Username:
-                <TextField name="username" onChange={this.handleNameChange} />
+                <TextField name='username' onChange={this.handleNameChange} />
               </FormLabel>
               <FormLabel>
                 Password:
                 <TextField
-                  type="password"
-                  name="password"
+                  type='password'
+                  name='password'
                   onChange={this.handlePasswordChange}
                 />
               </FormLabel>
               <div>
                 <Button
-                  variant="contained"
-                  color="primary"
+                  variant='contained'
+                  color='primary'
                   onClick={this.handleSubmit}
                 >
                   Login
@@ -112,13 +158,13 @@ class Login extends React.Component {
         <Grid
           container
           spacing={0}
-          alignItems="center"
-          justify="center"
-          style={{ minHeight: "100vh" }}
+          alignItems='center'
+          justify='center'
+          style={{ minHeight: '100vh' }}
         >
           <div>
             <ul>
-              {this.state.messages.map((value, index) => {
+              {messages.map((value, index) => {
                 return <li key={index}>{value}</li>;
               })}
             </ul>
@@ -131,17 +177,17 @@ class Login extends React.Component {
             </FormLabel>
             <div>
               <Button
-                variant="contained"
-                color="primary"
+                variant='contained'
+                color='primary'
                 onClick={() => this.addNewMessage(this.state.newMessage)}
               >
-                {" "}
+                {' '}
                 Add
               </Button>
               &nbsp;
               <Button
-                variant="contained"
-                color="primary"
+                variant='contained'
+                color='primary'
                 onClick={() => this.logout()}
               >
                 Logout
