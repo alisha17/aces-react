@@ -27,7 +27,6 @@ class Login extends React.Component {
   };
 
   addNewMessage = message => {
-    console.log('hehbfbfbfb');
     this.setState({
       messages: [...this.state.messages, message]
     });
@@ -45,8 +44,6 @@ class Login extends React.Component {
     )
 
     this.setState({ newMessage: '' });
-
-    console.log(this.state.messages);
   };
 
   logout = () => {
@@ -91,7 +88,6 @@ class Login extends React.Component {
         const bearer = 'Bearer '+response['access_token'];
         sessionStorage.setItem('bearer_token', bearer)
 
-        console.log(bearer);
         const options = {
           method: 'GET',
           headers: {
