@@ -1,5 +1,8 @@
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
 
+This project has been deployed in S3 bucket.
+
+The backend URL has been hardcoded, however it can be proxied using `NGINX`.
 
 ## Available Scripts
 
